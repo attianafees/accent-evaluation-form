@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urdu TTS Accent Evaluation - CMOS Study TASK 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .audio-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .step-label {
+            font-weight: 700;
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+        
+        audio {
+            width: 100%;
+            margin-bottom: 15px;
+            max-width: 100%;
+        }
+        
+        .transcript-box {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-family: 'Arial', sans-serif;
+            line-height: 1.8;
+            font-size: 1.05em;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .rating-scale {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .rating-button {
+            padding: 12px 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        
+        .rating-button:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+        
+        .rating-button.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #bdbdbd;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .sentence-number {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        
+        .step-indicator {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .expandable-header {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #667eea;
+            user-select: none;
+        }
+        
+        .expandable-header:hover {
+            background: #efefef;
+        }
+        
+        .expandable-content {
+            display: none;
+            background: #fafafa;
+            padding: 15px;
+            margin-top: 8px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+        
+        .expandable-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- PAGE 1: CONSENT -->
+        <div class="page active" id="page-consent">
+            <h1>Urdu TTS Accent Evaluation Study - TASK 1</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 2%"></div>
+            </div>
+            
+            <h2>Informed Consent Form</h2>
+            <p><strong>Study Title:</strong> Script-Induced Phonological Confusion in Multilingual Text-to-Speech Systems</p>
+            
+            <p><strong>Research Purpose:</strong> This study evaluates accent in synthetically generated Urdu speech from multilingual TTS models. Your evaluation will help us understand how script representation affects phonological output in low-resource language synthesis.</p>
+            
+            <p><strong>What You Will Do:</strong></p>
+            <ul style="margin-left: 20px; margin-bottom: 15px;">
+                <li>Listen to 12 sentences (1 training + 12 evaluation)</li>
+                <li>For each sentence, complete 5 comparison steps</li>
+                <li>Mark phonological errors on transcripts</li>
+                <li>Rate the nativeness/accent level</li>
+                <li><strong>Estimated time: 60-90 minutes</strong></li>
+            </ul>
+            
+            <p><strong>Confidentiality:</strong> Your responses will be anonymous and used only for research purposes.</p>
+            
+            <h3>Required Information</h3>
+            <div class="form-group">
+                <label>Your Name *</label>
+                <input type="text" id="evaluator-name" placeholder="Full name" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Your Email *</label>
+                <input type="email" id="evaluator-email" placeholder="your.email@example.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Years of Native Urdu Speaking Experience *</label>
+                <input type="text" id="urdu-experience" placeholder="e.g., 25+ years" required>
+            </div>
+            
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="consent-check" required>
+                    <label for="consent-check" style="margin-bottom: 0;">I have read and agree to participate in this study *</label>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="nextPage()">I Consent & Continue</button>
+            </div>
+        </div>
+
+        <!-- PAGE 2: INSTRUCTIONS & REFERENCE TABLES -->
+        <div class="page" id="page-instructions">
+            <h1>Instructions & Reference Materials</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 5%"></div>
+            </div>
+            
+            <div class="warning-box">
+                <strong>⚠️ IMPORTANT:</strong> Keep this page open during evaluation. Use Tables A, B, C below to identify errors.
+            </div>
+            
+            <h2>How to Evaluate Each Sentence</h2>
+            <p>For each sentence, you will complete <strong>5 steps</strong>. At each step:</p>
+            <ol style="margin-left: 20px; margin-bottom: 15px;">
+                <li><strong>Listen</strong> to Audio A (baseline/reference) and Audio B (test)</li>
+                <li><strong>Mark errors</strong> on the transcript using codes: [P], [W], [S]</li>
+                <li><strong>Rate</strong> how Audio B compares to Audio A: -2 to +2</li>
+            </ol>
+            
+            <h2>Error Codes</h2>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Error Type</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>[P]</strong></td>
+                            <td>PHONEME: Segmental phonetic error</td>
+                            <td>Retroflex as alveolar; Wrong aspiration; Nasalization error</td>
+                        </tr>
+                        <tr>
+                            <td><strong>[W]</strong></td>
+                            <td>WORD/PROSODY: Suprasegmental error</td>
+                            <td>Wrong stress; Unnatural pitch; Clitic separation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>[S]</strong></td>
+                            <td>SCRIPT-INDUCED: From Perso-Arabic confusion</td>
+                            <td>Emphatic vowels; Pharyngealization; Arabic patterns</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h2 onclick="toggleExpand(this)" style="cursor: pointer;">📋 Table A: Urdu-Arabic Script Differences ▼</h2>
+            <div class="expandable-content active">
+                <div class="table-wrapper">
+                    <table style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Arabic</th>
+                                <th>Urdu</th>
+                                <th>Error You Hear</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>ع</strong></td>
+                                <td>Pharyngeal [ʕ]</td>
+                                <td>Velar [ɢ]</td>
+                                <td>Pharyngeal instead of soft velar</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ح</strong></td>
+                                <td>Pharyngeal [ħ]</td>
+                                <td>Velar [x]</td>
+                                <td>Harsh pharyngeal instead of soft</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ق</strong></td>
+                                <td>Emphatic [qˤ]</td>
+                                <td>Plain [q]</td>
+                                <td>Emphatic instead of plain</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ض/ص/ط</strong></td>
+                                <td>Emphatic</td>
+                                <td>Non-emphatic</td>
+                                <td>Emphasis spreading to vowels</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <h2 onclick="toggleExpand(this)" style="cursor: pointer;">📋 Table B: Hindi-Urdu Phonology Differences ▼</h2>
+            <div class="expandable-content">
+                <p><strong>In Steps 3-4, watch for these Hindi ambiguities:</strong></p>
+                <div class="table-wrapper">
+                    <table style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>Sound</th>
+                                <th>Urdu</th>
+                                <th>Hindi</th>
+                                <th>Error You Hear</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Z</strong></td>
+                                <td>ز [z]</td>
+                                <td>ज [dʒ]</td>
+                                <td>"zindagi" → "jindagi"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>F</strong></td>
+                                <td>ف [f]</td>
+                                <td>फ [pʰ]</td>
+                                <td>"phir" → "pfir"</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TH</strong></td>
+                                <td>ث [θ/s]</td>
+                                <td>थ [tʰ]</td>
+                                <td>Aspirated instead of fricative</td>
+                            </tr>
+                            <tr>
+                                <td><strong>GH</strong></td>
+                                <td>غ [ɣ]</td>
+                                <td>घ [ɢʰ]</td>
+                                <td>Aspirated instead of fricative</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <h2 onclick="toggleExpand(this)" style="cursor: pointer;">📋 Table C: Quick Reference ▼</h2>
+            <div class="expandable-content">
+                <div class="table-wrapper">
+                    <table style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>What You Hear</th>
+                                <th>Code</th>
+                                <th>Cause</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Emphatic, pharyngeal, emphasis spreading</td>
+                                <td><strong>[S]</strong></td>
+                                <td>Arabic/Persian confusion</td>
+                            </tr>
+                            <tr>
+                                <td>Z→J, F→PH (Steps 3-4)</td>
+                                <td><strong>[P]</strong></td>
+                                <td>Hindi script ambiguity</td>
+                            </tr>
+                            <tr>
+                                <td>Wrong stress, pitch, clitic separation</td>
+                                <td><strong>[W]</strong></td>
+                                <td>Prosodic error</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousPage()">Back</button>
+                <button class="btn-primary" onclick="nextPage()">Continue to Training</button>
+            </div>
+        </div>
+
+        <!-- PAGE 3: TRAINING EXAMPLE -->
+        <div class="page" id="page-training">
+            <h1>Training Example (Not Scored)</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 8%"></div>
+            </div>
+            
+            <div class="success-box">
+                <strong>Practice Mode:</strong> This example shows you how to complete the evaluation. Your responses here are NOT recorded. Use this to familiarize yourself with the process.
+            </div>
+            
+            <div class="sentence-number">Training Sentence: SPEAKER_000_PROSES_0069</div>
+            
+            <div id="training-content"></div>
+            
+            <div class="button-group">
+                <button class="btn-secondary" onclick="previousPage()">Back</button>
+                <button class="btn-primary" onclick="nextPage()">Continue to Evaluation</button>
+            </div>
+        </div>
+
+        <!-- EVALUATION PAGES (12 SENTENCES) -->
+        <div id="evaluation-pages"></div>
+
+        <!-- FINAL SUBMISSION PAGE -->
+        <div class="page" id="page-submit">
+            <h1>Thank You for Your Evaluation!</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 100%"></div>
+            </div>
+            
+            <div class="success-box">
+                <h2>Your evaluation has been successfully submitted!</h2>
+                <p>Thank you for contributing to this important research on script-induced phonological confusion in multilingual TTS.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio file IDs for each step
+        const audioIds = {
+            'SPEAKER_000_PROSES_0069.wav': {
+                step1_a: '1M3tdUeBDt7lruotD0BYaC2wdtwwpGCtV',
+                step1_b: '1XCCaZDwi5MZ9Tv7p0cFAV7QbFnYue9Nc',
+                step2_a: '1XCCaZDwi5MZ9Tv7p0cFAV7QbFnYue9Nc',
+                step2_b: '1xdDMAVqZx912JxTXoqaOmVz0NQIMbOiD',
+                step3_a: '1XCCaZDwi5MZ9Tv7p0cFAV7QbFnYue9Nc',
+                step3_b: '1wIhaf34zTspsq2vIaRL4vb2KXW6YUVg-',
+                step4_a: '1wIhaf34zTspsq2vIaRL4vb2KXW6YUVg-',
+                step4_b: '10d0JNe8W5XobiSPuGktNE08r866lKALU',
+                step5_a: '1XCCaZDwi5MZ9Tv7p0cFAV7QbFnYue9Nc',
+                step5_b: '1HrL0_8rcVRmNuV-eyDbsRc8bkUt6YzwS'
+            },
+            'SPEAKER_000_POETRY_0126.wav': {
+                step1_a: '1hFF7v54KjdI2He7UoICRFTaHI1OtuGXE',
+                step1_b: '1pgeg4rXbbI3mpKC7-SherX8DPq5l1Fn9',
+                step2_a: '1pgeg4rXbbI3mpKC7-SherX8DPq5l1Fn9',
+                step2_b: '1R1mD2wS-wolRpx5SrHxp_IzlAGkhOC1I',
+                step3_a: '1pgeg4rXbbI3mpKC7-SherX8DPq5l1Fn9',
+                step3_b: '1GYwa-Qs9LRqe-TxH5S8X8Kifm9AqMzmG',
+                step4_a: '1GYwa-Qs9LRqe-TxH5S8X8Kifm9AqMzmG',
+                step4_b: '17i0a39E7nJ8f6jjgqLtuBkw6oBHaF24g',
+                step5_a: '1pgeg4rXbbI3mpKC7-SherX8DPq5l1Fn9',
+                step5_b: '1hk26-fYck__cy9QXiOgyaAupT9GD_k-k'
+            },
+            'SPEAKER_000_POETRY_0133.wav': {
+                step1_a: '11kH2fSHa1q6_-JPFfWWtynm5v5LmUwXm',
+                step1_b: '1ENOkap2Qka1BgXTKgBqxeP6lokGiCCjG',
+                step2_a: '1ENOkap2Qka1BgXTKgBqxeP6lokGiCCjG',
+                step2_b: '1shmknhXwHFPp8nE-5x-awpTSiBWRmJni',
+                step3_a: '1ENOkap2Qka1BgXTKgBqxeP6lokGiCCjG',
+                step3_b: '14PtnL6NtGp7bwbvGNT7a3GLrUYlwckd4',
+                step4_a: '14PtnL6NtGp7bwbvGNT7a3GLrUYlwckd4',
+                step4_b: '1KU_u56qT5Rn3f-YujCidVNT2jiDcLo3C',
+                step5_a: '1ENOkap2Qka1BgXTKgBqxeP6lokGiCCjG',
+                step5_b: '1-cJCz3nOLB5zQfLy-mWtqZ6Z8qqYIFsq'
+            },
+            'SPEAKER_000_PROSES_0378.wav': {
+                step1_a: '11dj6cl__fMiQdpTkL7OorKf-M3CB3lkY',
+                step1_b: '1vpVBItjDu_ihaDQk8FD9WWCaBzRy5_F3',
+                step2_a: '1vpVBItjDu_ihaDQk8FD9WWCaBzRy5_F3',
+                step2_b: '16CvKk0Bo-QAVDIaI0jxjuqH73P_vg8jS',
+                step3_a: '1vpVBItjDu_ihaDQk8FD9WWCaBzRy5_F3',
+                step3_b: '1QHdkCMAWRC1VEgzhIklPmKKHHd9oHQZA',
+                step4_a: '1QHdkCMAWRC1VEgzhIklPmKKHHd9oHQZA',
+                step4_b: '',
+                step5_a: '1vpVBItjDu_ihaDQk8FD9WWCaBzRy5_F3',
+                step5_b: '1N4VO9Peo9PTkeZjM-9XJPRPq4vZf93X0'
+            },
+            'SPEAKER_000_PROSES_0450.wav': {
+                step1_a: '1epGKSyM6oOAhKBgm4Wkvi3Tl09aJVjqv',
+                step1_b: '1w9J60SPnmfPJXixi9S6igd8i0iuUcMMn',
+                step2_a: '1w9J60SPnmfPJXixi9S6igd8i0iuUcMMn',
+                step2_b: '10lEHstq4ZHs-eLEv7oIKlyAJkNUH1-Hq',
+                step3_a: '1w9J60SPnmfPJXixi9S6igd8i0iuUcMMn',
+                step3_b: '1qNIdL3P9NJFRt7XijJ2quk9ywkq0ehTq',
+                step4_a: '1qNIdL3P9NJFRt7XijJ2quk9ywkq0ehTq',
+                step4_b: '',
+                step5_a: '1w9J60SPnmfPJXixi9S6igd8i0iuUcMMn',
+                step5_b: '1isL1vkYimAlVsdYE0yrQ8sQ-xE9Sulut'
+            },
+            'SPEAKER_012_COMEDYSHOW_0414.WAV': {
+                step1_a: '1g0I8E634pnqzC-XI7PdsnulVoZ4DjvKn',
+                step1_b: '11wRrZoLghc0O6n4OkVnEpxzOgbVyEja2',
+                step2_a: '11wRrZoLghc0O6n4OkVnEpxzOgbVyEja2',
+                step2_b: '1aqKAVsTQCOaHQhtVXASY2SjAAtqiqKrx',
+                step3_a: '11wRrZoLghc0O6n4OkVnEpxzOgbVyEja2',
+                step3_b: '1KPtP8CnPnQk1NXTGpMxQySxq-Fk120eC',
+                step4_a: '1KPtP8CnPnQk1NXTGpMxQySxq-Fk120eC',
+                step4_b: '13H0BXxdeusDu38JmS8kQ-66qJ1OziX6G',
+                step5_a: '11wRrZoLghc0O6n4OkVnEpxzOgbVyEja2',
+                step5_b: '1DXKh8AVNttnFMXLMZhEplelgpQpajnMm'
+            },
+            'SPEAKER_038_FILM_0341.WAV': {
+                step1_a: '1_gzMylX2d2sLdpnFmA-EKCr7ZDzSiiR5',
+                step1_b: '1WaEHwe-fDfy4LkcfpPVuedHK4084oKiy',
+                step2_a: '1WaEHwe-fDfy4LkcfpPVuedHK4084oKiy',
+                step2_b: '',
+                step3_a: '1WaEHwe-fDfy4LkcfpPVuedHK4084oKiy',
+                step3_b: '1imeG1-gBjmS__XkVf7EGe5BRHtpyPr3C',
+                step4_a: '1imeG1-gBjmS__XkVf7EGe5BRHtpyPr3C',
+                step4_b: '17SFCarsrm1slAKaxR82zhiUaJW2ub22-',
+                step5_a: '1WaEHwe-fDfy4LkcfpPVuedHK4084oKiy',
+                step5_b: '1DuFMsP1dPjguR99p9dIVoy256Z5vD82w'
+            },
+            'SPEAKER_041_FILM_0431.WAV': {
+                step1_a: '1fGSDzXcCv4pNMzBUHJP9NCoRDaKD1EWj',
+                step1_b: '1FBGrLfV_qz-IyZDQ0_QJL1F723wntXtK',
+                step2_a: '1FBGrLfV_qz-IyZDQ0_QJL1F723wntXtK',
+                step2_b: '1_exfM_Lxu5Zw2v08qhDrrQ50xNPntH5v',
+                step3_a: '1FBGrLfV_qz-IyZDQ0_QJL1F723wntXtK',
+                step3_b: '1yLCZnChQ3HKirgQBUj6rdGKP70_ZnPOH',
+                step4_a: '1yLCZnChQ3HKirgQBUj6rdGKP70_ZnPOH',
+                step4_b: '10WhURHLxfCe5XAF0GLnUWR1zCh98EfFz',
+                step5_a: '1FBGrLfV_qz-IyZDQ0_QJL1F723wntXtK',
+                step5_b: '1-6OWQLoadOg8YJNX6Kj2NTmYJiZoHDlA'
+            },
+            'SPEAKER_019_NEWS_0168.WAV': {
+                step1_a: '',
+                step1_b: '1hWAKXARCCwvILGtNQx__-G-5Jhl6_NKh',
+                step2_a: '1hWAKXARCCwvILGtNQx__-G-5Jhl6_NKh',
+                step2_b: '14us3EJaDYsjFoMrIv6gy_J9cWzcQQz1A',
+                step3_a: '1hWAKXARCCwvILGtNQx__-G-5Jhl6_NKh',
+                step3_b: '1EbIUBnk5AYrDHcdb0psMl1elO06UhGQ_',
+                step4_a: '1EbIUBnk5AYrDHcdb0psMl1elO06UhGQ_',
+                step4_b: '1PySFc4mVWa5jMISRKruspQnadis2hQPf',
+                step5_a: '1hWAKXARCCwvILGtNQx__-G-5Jhl6_NKh',
+                step5_b: '1iNBXGvfRvo3nW1dekotBlcbEyjdu-iRv'
+            },
+            'SPEAKER_001_YOUTUBEREVIEWS_0417.WAV': {
+                step1_a: '1whGiSq6e_uBemhrYnBpYbj8rY7bJ9zhT',
+                step1_b: '1lk3u2k2Ujf11Bmm4DPQThhLxQMoVHCYZ',
+                step2_a: '1lk3u2k2Ujf11Bmm4DPQThhLxQMoVHCYZ',
+                step2_b: '1X6CRk4-mfgxG4oG00_WdkXroWctURGht',
+                step3_a: '1lk3u2k2Ujf11Bmm4DPQThhLxQMoVHCYZ',
+                step3_b: '1BQEvQdgj0PcplSfljbaBhOHWvPAgg-eR',
+                step4_a: '1BQEvQdgj0PcplSfljbaBhOHWvPAgg-eR',
+                step4_b: '1Pop_fXQn8wVARdRjfp060hEiPJY_XtHI',
+                step5_a: '1lk3u2k2Ujf11Bmm4DPQThhLxQMoVHCYZ',
+                step5_b: '1SqessGxWUjB8qXk8j8OoM6UnqmECnNMi'
+            },
+            'SPEAKER_008_DRAMA_0154.wav': {
+                step1_a: '1CcEwWma4VSNHVkFgAG6xM-LVWNGIzA5J',
+                step1_b: '1SvOoit9KniFxu7ZDOgLtrUJyIysg2SJm',
+                step2_a: '1SvOoit9KniFxu7ZDOgLtrUJyIysg2SJm',
+                step2_b: '1tvQGn4CAuhHjLWYXq_qTPt3L67cHt9jx',
+                step3_a: '1SvOoit9KniFxu7ZDOgLtrUJyIysg2SJm',
+                step3_b: '1_AH71nHkz0EVfN7DCdV_VDVQ3nYmc8md',
+                step4_a: '1_AH71nHkz0EVfN7DCdV_VDVQ3nYmc8md',
+                step4_b: '10QhGwf9I-q13ZiCCuvGcyuyafji3lFDT',
+                step5_a: '1SvOoit9KniFxu7ZDOgLtrUJyIysg2SJm',
+                step5_b: '1iI5WmWskZOfCqJk1GvzvB-X8coq8tbWJ'
+            },
+            'SPEAKER_003_Podcast_0399.wav': {
+                step1_a: '1kmaRZKGRnwYARCVAWqNCI0t4wSKguQso',
+                step1_b: '1xgc8EtdwNZC1iB36_8AnDhCUwvN6eLZk',
+                step2_a: '1xgc8EtdwNZC1iB36_8AnDhCUwvN6eLZk',
+                step2_b: '1wnVKlQM84eU6itLTvnr7vcxS4GKz-JTt',
+                step3_a: '1xgc8EtdwNZC1iB36_8AnDhCUwvN6eLZk',
+                step3_b: '1hIoKpylA6iDp0crvfwrq8VEhhutFGzN0',
+                step4_a: '1hIoKpylA6iDp0crvfwrq8VEhhutFGzN0',
+                step4_b: '1jXIMKoyE-nbe-7pj7iWUjW9HO0eLhN7-',
+                step5_a: '1xgc8EtdwNZC1iB36_8AnDhCUwvN6eLZk',
+                step5_b: '1Htu8cRbj2QYIJnjBBuE7M6izuwJdiApq'
+            },
+            'SPEAKER_003_Podcast_0521.wav': {
+                step1_a: '1MORuexyUb0j2u6kGdkapP7fUJrU7BYlT',
+                step1_b: '1hvkjaKeCjb56cLBzV2bxql5VqvwN4eaZ',
+                step2_a: '1hvkjaKeCjb56cLBzV2bxql5VqvwN4eaZ',
+                step2_b: '',
+                step3_a: '1hvkjaKeCjb56cLBzV2bxql5VqvwN4eaZ',
+                step3_b: '14kZoXsT87-xb3JgcVd_DtCl_qIqBKjs3',
+                step4_a: '14kZoXsT87-xb3JgcVd_DtCl_qIqBKjs3',
+                step4_b: '1R_qCGhvRu-v0jEOb1rPv_Xr-0vLo-EH8',
+                step5_a: '1hvkjaKeCjb56cLBzV2bxql5VqvwN4eaZ',
+                step5_b: '1zOvPFrCF7AN08FPJnP33fAwkC1P4tOko'
+            }
+        };
+
+        // Evaluation data - 13 total items (1 training + 12 evaluation)
+        const allData = [
+            { key: "SPEAKER_000_POETRY_0126.wav", txt: "وگرنہ فصل گل کی قدر کیا تھی بڑی حکمت ہے وابستہ خزاں سے" },
+            { key: "SPEAKER_000_POETRY_0133.wav", txt: "آنکھ کھٹکتی ہے کیوں سبزہ دیکھ کر" },
+            { key: "SPEAKER_000_PROSES_0069.wav", txt: "کہ وہ کسی عمارت کو اس وقت تک خاطر میں نہیں لاتے جب تک وہ کھنڈر نہ ہو جائے۔" }, // TRAINING (index 2)
+            { key: "SPEAKER_000_PROSES_0378.wav", txt: "وہ یہ کہتے بھی سنے گئے کہ عجیب نامعقول قسم کے لوگ مشاعرے میں آنا شروع ہوگئے ہیں۔" },
+            { key: "SPEAKER_000_PROSES_0450.wav", txt: "لیجیے یک مشت اتنے دلی والوں سے نیاز حاصل ہو گیا بلکہ دلی سے شاید یہ میرا پہلا باقاعدہ تعارف تھا۔" },
+            { key: "SPEAKER_012_COMEDYSHOW_0414.WAV", txt: "تو اسی طرح کبھی ایسا ہوا ہے آپ کے ساتھ کہ کسی ایکٹر کی تعریف کر دی ہو کہ بہت اچھا کام کیا آپ نے بہت اچھا دیکھی نہ ہو؟" },
+            { key: "SPEAKER_038_FILM_0341.WAV", txt: "ڈر لگتا ہے نا بیبو جی" },
+            { key: "SPEAKER_041_FILM_0431.WAV", txt: "تو یہ بتاو سارے پنڈ کی روٹی کرنی ہو" },
+            { key: "SPEAKER_019_NEWS_0168.WAV", txt: "طیارے کو چھونے کے لیے بے قرار نظر آئے۔" },
+            { key: "SPEAKER_001_YOUTUBEREVIEWS_0417.WAV", txt: "ٹھیک ہے تو اس پہ پھر ہم نے کیا ڈیکوڈ کیا پوری کنورسیشن میں" },
+            { key: "SPEAKER_008_DRAMA_0154.wav", txt: "کیوں؟ تمہیں کیا سرخاب کے پر لگے ہوئے ہیں؟" },
+            { key: "SPEAKER_003_Podcast_0399.wav", txt: "یہ بات تھوڑے عرصے تک ہمارے ہاں اردو شاعری میں بھی رہی" },
+            { key: "SPEAKER_003_Podcast_0521.wav", txt: "کر رہے ہیں اپنے اوپر دوسرا آپ یہ بھی کہہ رہے ہیں کہ بھئی مجھے کیوں مٹا رہے ہو" }
+        ];
+        
+        // Training data (index 2)
+        const trainingData = allData[2];
+        
+        // Evaluation data (all except index 2)
+        const evaluationData = allData.filter((_, i) => i !== 2);
+        
+        let currentPage = 0;
+        const pages = ['consent', 'instructions', 'training'];
+        let formData = {};
+        
+        function nextPage() {
+            if (currentPage === 0) {
+                const name = document.getElementById('evaluator-name').value.trim();
+                const email = document.getElementById('evaluator-email').value.trim();
+                const exp = document.getElementById('urdu-experience').value.trim();
+                const consent = document.getElementById('consent-check').checked;
+                
+                if (!name || !email || !exp || !consent) {
+                    alert('Please fill in all required fields and check consent');
+                    return;
+                }
+                
+                formData.name = name;
+                formData.email = email;
+                formData.experience = exp;
+            }
+            
+            if (currentPage < pages.length - 1) {
+                showPage(++currentPage);
+            }
+        }
+        
+        function previousPage() {
+            if (currentPage > 0) {
+                showPage(--currentPage);
+            }
+        }
+        
+        function showPage(pageNum) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const pageId = `page-${pages[pageNum]}`;
+            const page = document.getElementById(pageId);
+            if (page) {
+                page.classList.add('active');
+                window.scrollTo(0, 0);
+            }
+
+            const progress = ((pageNum + 1) / (pages.length + 12 + 1)) * 100;
+            document.querySelector('.progress-fill').style.width = progress + '%';
+
+            // Save current page
+            localStorage.setItem('urdEvalCurrentPage', pageNum);
+        }
+        
+        function toggleExpand(element) {
+            const next = element.nextElementSibling;
+            if (next && next.classList.contains('expandable-content')) {
+                next.classList.toggle('active');
+            }
+        }
+        
+        function createStepHTML(stepNum, itemKey) {
+            const stepLabels = {
+                1: 'Original Native vs. Fish-Audio Baseline (Perso-Arabic)',
+                2: 'Baseline vs. With Speaker Reference',
+                3: 'Perso-Arabic vs. Hindi Devanagari Script',
+                4: 'Devanagari Baseline vs. Devanagari + Speaker Reference',
+                5: 'Cross-Model: Fish-Audio vs. XTTS'
+            };
+
+            const stepDescs = {
+                1: 'How does Fish-Audio baseline compare to native Urdu?',
+                2: 'Does speaker reference reduce accent?',
+                3: 'HYPOTHESIS TEST: Do errors decrease with Devanagari?',
+                4: 'Can reference help resolve remaining errors?',
+                5: 'Is this problem specific to Fish-Audio or general?'
+            };
+
+            const ids = audioIds[itemKey];
+            const aId = ids[`step${stepNum}_a`];
+            const bId = ids[`step${stepNum}_b`];
+
+            let audioAHTML = '';
+            let audioBHTML = '';
+
+            if (aId) {
+                audioAHTML = `<div style="background:#fff; padding:10px; border-radius:4px; border:1px solid #ddd; margin-bottom:15px;"><iframe src="https://drive.google.com/file/d/${aId}/preview" width="100%" height="60" allow="autoplay"></iframe></div>`;
+            } else {
+                audioAHTML = `<p><em>Audio not available for this step</em></p>`;
+            }
+
+            if (bId) {
+                audioBHTML = `<div style="background:#fff; padding:10px; border-radius:4px; border:1px solid #ddd; margin-bottom:15px;"><iframe src="https://drive.google.com/file/d/${bId}/preview" width="100%" height="60" allow="autoplay"></iframe></div>`;
+            } else {
+                audioBHTML = `<p><em>Audio not available for this step</em></p>`;
+            }
+
+            return `
+                <div class="audio-section">
+                    <div class="step-indicator">
+                        <div class="step-label">STEP ${stepNum}: ${stepLabels[stepNum]}</div>
+                        <p><em>${stepDescs[stepNum]}</em></p>
+                    </div>
+
+                    <p><strong>Audio A (Baseline/Reference):</strong></p>
+                    ${audioAHTML}
+
+                    <p><strong>Audio B (Test):</strong></p>
+                    ${audioBHTML}
+
+                    <p style="margin-top: 15px;"><strong>Transcript (Mark errors):</strong></p>
+                    <div class="transcript-box" id="step${stepNum}-transcript">
+                        [Transcript will display here]
+                    </div>
+
+                    <div class="form-group">
+                        <label>Error Markings [P], [W], [S]:</label>
+                        <textarea name="step${stepNum}_errors_${itemKey}" placeholder="Example: word1 [P]word2[/P] [S]word3[/S]"></textarea>
+                    </div>
+
+                    <label><strong>Audio B Naturalness Rating:</strong></label>
+                    <div class="rating-scale">
+                        <button type="button" class="rating-button" onclick="setRating(this, '${itemKey}-${stepNum}')"><strong>1</strong><br>Too Foreign</button>
+                        <button type="button" class="rating-button" onclick="setRating(this, '${itemKey}-${stepNum}')"><strong>2</strong><br>Foreign</button>
+                        <button type="button" class="rating-button" onclick="setRating(this, '${itemKey}-${stepNum}')"><strong>3</strong><br>Neutral</button>
+                        <button type="button" class="rating-button" onclick="setRating(this, '${itemKey}-${stepNum}')"><strong>4</strong><br>Almost Native</button>
+                        <button type="button" class="rating-button" onclick="setRating(this, '${itemKey}-${stepNum}')"><strong>5</strong><br>Native</button>
+                    </div>
+                    <input type="hidden" name="step${stepNum}_rating_${itemKey}" value="">
+                </div>
+            `;
+        }
+        
+        function setRating(btn, key) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.rating-button').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            const rating = btn.textContent.trim().split('\n')[0];
+            document.querySelector(`input[name="step*_rating_*"][data-key="${key}"]`)?.remove();
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = `rating_${key}`;
+            input.value = rating;
+            input.setAttribute('data-key', key);
+            btn.closest('.audio-section').appendChild(input);
+            saveFormData();
+        }
+
+        function saveFormData() {
+            const formData = {
+                name: document.getElementById('evaluator-name').value,
+                email: document.getElementById('evaluator-email').value,
+                experience: document.getElementById('urdu-experience').value,
+                consent: document.getElementById('consent-check').checked,
+                responses: {}
+            };
+
+            // Get all textarea and rating inputs
+            document.querySelectorAll('textarea[name^="step"]').forEach(textarea => {
+                formData.responses[textarea.name] = textarea.value;
+            });
+            document.querySelectorAll('input[name^="rating_"]').forEach(input => {
+                formData.responses[input.name] = input.value;
+            });
+
+            localStorage.setItem('urdEvalForm', JSON.stringify(formData));
+        }
+
+        function loadFormData() {
+            const saved = localStorage.getItem('urdEvalForm');
+            if (saved) {
+                const formData = JSON.parse(saved);
+                if (formData.name) document.getElementById('evaluator-name').value = formData.name;
+                if (formData.email) document.getElementById('evaluator-email').value = formData.email;
+                if (formData.experience) document.getElementById('urdu-experience').value = formData.experience;
+                if (formData.consent) document.getElementById('consent-check').checked = formData.consent;
+
+                // Restore responses
+                setTimeout(() => {
+                    for (const [key, value] of Object.entries(formData.responses || {})) {
+                        const el = document.querySelector(`[name="${key}"]`);
+                        if (el) {
+                            if (el.tagName === 'TEXTAREA') {
+                                el.value = value;
+                            }
+                        }
+                    }
+                }, 500);
+            }
+        }
+
+        // Auto-save on any change
+        document.addEventListener('change', saveFormData);
+        document.addEventListener('input', saveFormData);
+        
+        function generateEvaluationPage(sentenceNum, data) {
+            const pageId = `page-eval${sentenceNum}`;
+            const page = document.createElement('div');
+            page.className = 'page';
+            page.id = pageId;
+
+            let html = `
+                <h1>Evaluation - Sentence ${sentenceNum} of 12</h1>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${(8 + (sentenceNum * 7.5))}%"></div>
+                </div>
+
+                <div class="sentence-number">${data.key}</div>
+            `;
+
+            for (let step = 1; step <= 5; step++) {
+                html += createStepHTML(step, data.key);
+            }
+
+            html += `
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="previousPage()">Back</button>
+                    <button class="btn-primary" onclick="nextPage()">Next</button>
+                </div>
+            `;
+
+            page.innerHTML = html;
+            document.getElementById('evaluation-pages').appendChild(page);
+            pages.push(`eval${sentenceNum}`);
+        }
+        
+        function goToPage(pageNum) {
+            if (pageNum <= pages.length - 1) {
+                currentPage = pageNum;
+                showPage(currentPage);
+            }
+        }
+        
+        function submitForm() {
+            // Get evaluator info from localStorage
+            const evaluatorName = document.getElementById('evaluator-name')?.value || formData.name || '';
+            const evaluatorEmail = document.getElementById('evaluator-email')?.value || formData.email || '';
+            const experience = document.getElementById('urdu-experience')?.value || formData.experience || '';
+
+            // Collect all responses from the form
+            const responses = {};
+            for (const item of evaluationData) {
+                const sentenceKey = item.key;
+                responses[sentenceKey] = {
+                    transcript: formData[`${sentenceKey}_transcript`] || '',
+                    step1_rating: formData[`${sentenceKey}_step1_rating`] || '',
+                    step2_rating: formData[`${sentenceKey}_step2_rating`] || '',
+                    step3_rating: formData[`${sentenceKey}_step3_rating`] || '',
+                    step4_rating: formData[`${sentenceKey}_step4_rating`] || '',
+                    step5_rating: formData[`${sentenceKey}_step5_rating`] || ''
+                };
+            }
+
+            // Prepare the submission data
+            const submissionData = {
+                evaluatorName: evaluatorName,
+                evaluatorEmail: evaluatorEmail,
+                experience: experience,
+                timestamp: new Date().toISOString(),
+                responses: responses
+            };
+
+            // Show loading message
+            const submitBtn = event.target;
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            // Send to Google Apps Script
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxZL8Esgp5qFOmeXRoeoIRimnzAyUfnnHUqaxgf4btiF-LRSI7jTD8PoAeVTz3jzofdnA/exec';
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(submissionData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Clear localStorage after successful submission
+                    localStorage.removeItem('urdEvalFormData');
+                    localStorage.removeItem('urdEvalCurrentPage');
+
+                    // Go to success page
+                    currentPage = pages.length - 1;
+                    showPage(currentPage);
+                } else {
+                    alert('Error submitting form: ' + data.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            })
+            .catch(error => {
+                alert('Error submitting form. Please try again.\n' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            });
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            // Generate training page content
+            const trainingHTML = ``;
+            for (let step = 1; step <= 5; step++) {
+                document.getElementById('training-content').innerHTML += createStepHTML(step, trainingData.key);
+            }
+            document.getElementById('training-content').innerHTML += `
+                <div class="button-group">
+                    <button class="btn-secondary" onclick="previousPage()">Back</button>
+                    <button class="btn-primary" onclick="nextPage()">Continue to Evaluation</button>
+                </div>
+            `;
+
+            // Set transcript for training
+            for (let step = 1; step <= 5; step++) {
+                const el = document.getElementById(`step${step}-transcript`);
+                if (el) el.textContent = trainingData.txt;
+            }
+
+            // Generate 12 evaluation pages
+            evaluationData.forEach((data, idx) => {
+                generateEvaluationPage(idx + 1, data);
+            });
+
+            // Set transcripts for all evaluation pages
+            evaluationData.forEach((data, idx) => {
+                const pageNum = idx + 1;
+                for (let step = 1; step <= 5; step++) {
+                    const el = document.querySelector(`#page-eval${pageNum} #step${step}-transcript`);
+                    if (el) el.textContent = data.txt;
+                }
+            });
+
+            // Add final submission page
+            pages.push('submit');
+
+            // Add final button to last evaluation page
+            const lastEvalPage = document.querySelector('#page-eval12');
+            const buttons = lastEvalPage.querySelector('.button-group');
+            buttons.innerHTML = `
+                <button class="btn-secondary" onclick="goToPage(${pages.length - 2})">Back</button>
+                <button class="btn-primary" onclick="submitForm()">Submit Evaluation</button>
+            `;
+
+            // Load saved data
+            loadFormData();
+
+            // Restore to last page viewed
+            const savedPage = localStorage.getItem('urdEvalCurrentPage');
+            if (savedPage) {
+                showPage(parseInt(savedPage));
+            } else {
+                showPage(0);
+            }
+        });
+    </script>
+</body>
+</html>
