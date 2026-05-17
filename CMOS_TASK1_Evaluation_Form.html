@@ -307,7 +307,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- PAGE 1: CONSENT -->
         <div class="page active" id="page-consent">
             <h1>Urdu TTS Accent Evaluation Study - TASK 1</h1>
             <div class="progress-bar">
@@ -358,7 +357,6 @@
             </div>
         </div>
 
-        <!-- PAGE 2: INSTRUCTIONS & REFERENCE TABLES -->
         <div class="page" id="page-instructions">
             <h1>Instructions & Reference Materials</h1>
             <div class="progress-bar">
@@ -530,7 +528,6 @@
             </div>
         </div>
 
-        <!-- PAGE 3: TRAINING EXAMPLE -->
         <div class="page" id="page-training">
             <h1>Training Example (Not Scored)</h1>
             <div class="progress-bar">
@@ -551,10 +548,8 @@
             </div>
         </div>
 
-        <!-- EVALUATION PAGES (12 SENTENCES) -->
         <div id="evaluation-pages"></div>
 
-        <!-- FINAL SUBMISSION PAGE -->
         <div class="page" id="page-submit">
             <h1>Thank You for Your Evaluation!</h1>
             <div class="progress-bar">
@@ -569,7 +564,6 @@
     </div>
 
     <script>
-        // Audio file IDs for each step
         const audioIds = {
             'SPEAKER_000_PROSES_0069.wav': {
                 step1_a: '1M3tdUeBDt7lruotD0BYaC2wdtwwpGCtV',
@@ -729,11 +723,10 @@
             }
         };
 
-        // Evaluation data - 13 total items (1 training + 12 evaluation)
         const allData = [
             { key: "SPEAKER_000_POETRY_0126.wav", txt: "وگرنہ فصل گل کی قدر کیا تھی بڑی حکمت ہے وابستہ خزاں سے" },
             { key: "SPEAKER_000_POETRY_0133.wav", txt: "آنکھ کھٹکتی ہے کیوں سبزہ دیکھ کر" },
-            { key: "SPEAKER_000_PROSES_0069.wav", txt: "کہ وہ کسی عمارت کو اس وقت تک خاطر میں نہیں لاتے جب تک وہ کھنڈر نہ ہو جائے۔" }, // TRAINING (index 2)
+            { key: "SPEAKER_000_PROSES_0069.wav", txt: "کہ وہ کسی عمارت کو اس وقت تک خاطر میں نہیں لاتے جب تک وہ کھنڈر نہ ہو جائے۔" },
             { key: "SPEAKER_000_PROSES_0378.wav", txt: "وہ یہ کہتے بھی سنے گئے کہ عجیب نامعقول قسم کے لوگ مشاعرے میں آنا شروع ہوگئے ہیں۔" },
             { key: "SPEAKER_000_PROSES_0450.wav", txt: "لیجیے یک مشت اتنے دلی والوں سے نیاز حاصل ہو گیا بلکہ دلی سے شاید یہ میرا پہلا باقاعدہ تعارف تھا۔" },
             { key: "SPEAKER_012_COMEDYSHOW_0414.WAV", txt: "تو اسی طرح کبھی ایسا ہوا ہے آپ کے ساتھ کہ کسی ایکٹر کی تعریف کر دی ہو کہ بہت اچھا کام کیا آپ نے بہت اچھا دیکھی نہ ہو؟" },
@@ -746,14 +739,11 @@
             { key: "SPEAKER_003_Podcast_0521.wav", txt: "کر رہے ہیں اپنے اوپر دوسرا آپ یہ بھی کہہ رہے ہیں کہ بھئی مجھے کیوں مٹا رہے ہو" }
         ];
         
-        // Training data (index 2)
         const trainingData = allData[2];
-        
-        // Evaluation data (all except index 2)
         const evaluationData = allData.filter((_, i) => i !== 2);
         
         let currentPage = 0;
-        const pages = ['consent', 'instructions', 'training'];
+        let pages = ['consent', 'instructions', 'training'];
         let formData = {};
         
         function nextPage() {
@@ -774,17 +764,24 @@
             }
             
             if (currentPage < pages.length - 1) {
-                showPage(++currentPage);
+                currentPage = currentPage + 1;
+                showPage(currentPage);
             }
         }
         
         function previousPage() {
             if (currentPage > 0) {
-                showPage(--currentPage);
+                currentPage = currentPage - 1;
+                showPage(currentPage);
             }
         }
         
         function showPage(pageNum) {
+            if (pageNum < 0 || pageNum >= pages.length) {
+                console.error('Invalid page:', pageNum);
+                return;
+            }
+            
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const pageId = `page-${pages[pageNum]}`;
             const page = document.getElementById(pageId);
@@ -793,10 +790,10 @@
                 window.scrollTo(0, 0);
             }
 
-            const progress = ((pageNum + 1) / (pages.length + 12 + 1)) * 100;
-            document.querySelector('.progress-fill').style.width = progress + '%';
+            const progress = ((pageNum + 1) / pages.length) * 100;
+            const pb = document.querySelector('.progress-fill');
+            if (pb) pb.style.width = progress + '%';
 
-            // Save current page
             localStorage.setItem('urdEvalCurrentPage', pageNum);
         }
         
@@ -828,20 +825,8 @@
             const aId = ids[`step${stepNum}_a`];
             const bId = ids[`step${stepNum}_b`];
 
-            let audioAHTML = '';
-            let audioBHTML = '';
-
-            if (aId) {
-                audioAHTML = `<div style="background:#fff; padding:10px; border-radius:4px; border:1px solid #ddd; margin-bottom:15px;"><iframe src="https://drive.google.com/file/d/${aId}/preview" width="100%" height="60" allow="autoplay"></iframe></div>`;
-            } else {
-                audioAHTML = `<p><em>Audio not available for this step</em></p>`;
-            }
-
-            if (bId) {
-                audioBHTML = `<div style="background:#fff; padding:10px; border-radius:4px; border:1px solid #ddd; margin-bottom:15px;"><iframe src="https://drive.google.com/file/d/${bId}/preview" width="100%" height="60" allow="autoplay"></iframe></div>`;
-            } else {
-                audioBHTML = `<p><em>Audio not available for this step</em></p>`;
-            }
+            let audioAHTML = aId ? `<div style="background:#fff; padding:10px; border-radius:4px; border:1px solid #ddd; margin-bottom:15px;"><iframe src="https://drive.google.com/file/d/${aId}/preview" width="100%" height="60" allow="autoplay"></iframe></div>` : `<p><em>Audio not available</em></p>`;
+            let audioBHTML = bId ? `<div style="background:#fff; padding:10px; border-radius:4px; border:1px solid #ddd; margin-bottom:15px;"><iframe src="https://drive.google.com/file/d/${bId}/preview" width="100%" height="60" allow="autoplay"></iframe></div>` : `<p><em>Audio not available</em></p>`;
 
             return `
                 <div class="audio-section">
@@ -849,24 +834,15 @@
                         <div class="step-label">STEP ${stepNum}: ${stepLabels[stepNum]}</div>
                         <p><em>${stepDescs[stepNum]}</em></p>
                     </div>
-
-                    <p><strong>Audio A (Baseline/Reference):</strong></p>
-                    ${audioAHTML}
-
-                    <p><strong>Audio B (Test):</strong></p>
-                    ${audioBHTML}
-
-                    <p style="margin-top: 15px;"><strong>Transcript (Mark errors):</strong></p>
-                    <div class="transcript-box" id="step${stepNum}-transcript">
-                        [Transcript will display here]
-                    </div>
-
+                    <p><strong>Audio A:</strong></p>${audioAHTML}
+                    <p><strong>Audio B:</strong></p>${audioBHTML}
+                    <p style="margin-top: 15px;"><strong>Transcript:</strong></p>
+                    <div class="transcript-box" id="step${stepNum}-transcript">[Transcript]</div>
                     <div class="form-group">
-                        <label>Error Markings [P], [W], [S]:</label>
-                        <textarea name="step${stepNum}_errors_${itemKey}" placeholder="Example: word1 [P]word2[/P] [S]word3[/S]"></textarea>
+                        <label>Error Markings:</label>
+                        <textarea name="step${stepNum}_errors_${itemKey}" placeholder="Mark errors [P], [W], [S]"></textarea>
                     </div>
-
-                    <label><strong>Audio B Naturalness Rating:</strong></label>
+                    <label><strong>Naturalness Rating:</strong></label>
                     <div class="rating-scale">
                         <button type="button" class="rating-button" onclick="setRating(this, '${itemKey}-${stepNum}')"><strong>1</strong><br>Too Foreign</button>
                         <button type="button" class="rating-button" onclick="setRating(this, '${itemKey}-${stepNum}')"><strong>2</strong><br>Foreign</button>
@@ -880,226 +856,80 @@
         }
         
         function setRating(btn, key) {
-            const parent = btn.parentElement;
-            parent.querySelectorAll('.rating-button').forEach(b => b.classList.remove('selected'));
+            btn.parentElement.querySelectorAll('.rating-button').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
             const rating = btn.textContent.trim().split('\n')[0];
-            document.querySelector(`input[name="step*_rating_*"][data-key="${key}"]`)?.remove();
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = `rating_${key}`;
-            input.value = rating;
-            input.setAttribute('data-key', key);
-            btn.closest('.audio-section').appendChild(input);
+            const input = btn.closest('.audio-section').querySelector(`input[name*="rating_"]`);
+            if (input) input.value = rating;
             saveFormData();
         }
 
         function saveFormData() {
-            const formData = {
-                name: document.getElementById('evaluator-name').value,
-                email: document.getElementById('evaluator-email').value,
-                experience: document.getElementById('urdu-experience').value,
-                consent: document.getElementById('consent-check').checked,
-                responses: {}
-            };
-
-            // Get all textarea and rating inputs
-            document.querySelectorAll('textarea[name^="step"]').forEach(textarea => {
-                formData.responses[textarea.name] = textarea.value;
-            });
-            document.querySelectorAll('input[name^="rating_"]').forEach(input => {
-                formData.responses[input.name] = input.value;
-            });
-
-            localStorage.setItem('urdEvalForm', JSON.stringify(formData));
+            const data = {name: document.getElementById('evaluator-name').value, email: document.getElementById('evaluator-email').value, experience: document.getElementById('urdu-experience').value, consent: document.getElementById('consent-check').checked, responses: {}};
+            document.querySelectorAll('textarea[name^="step"]').forEach(t => data.responses[t.name] = t.value);
+            localStorage.setItem('urdEvalForm', JSON.stringify(data));
         }
 
         function loadFormData() {
             const saved = localStorage.getItem('urdEvalForm');
             if (saved) {
-                const formData = JSON.parse(saved);
-                if (formData.name) document.getElementById('evaluator-name').value = formData.name;
-                if (formData.email) document.getElementById('evaluator-email').value = formData.email;
-                if (formData.experience) document.getElementById('urdu-experience').value = formData.experience;
-                if (formData.consent) document.getElementById('consent-check').checked = formData.consent;
-
-                // Restore responses
-                setTimeout(() => {
-                    for (const [key, value] of Object.entries(formData.responses || {})) {
-                        const el = document.querySelector(`[name="${key}"]`);
-                        if (el) {
-                            if (el.tagName === 'TEXTAREA') {
-                                el.value = value;
-                            }
-                        }
-                    }
-                }, 500);
+                const data = JSON.parse(saved);
+                if (data.name) document.getElementById('evaluator-name').value = data.name;
+                if (data.email) document.getElementById('evaluator-email').value = data.email;
+                if (data.experience) document.getElementById('urdu-experience').value = data.experience;
+                if (data.consent) document.getElementById('consent-check').checked = data.consent;
             }
         }
 
-        // Auto-save on any change
         document.addEventListener('change', saveFormData);
         document.addEventListener('input', saveFormData);
         
         function generateEvaluationPage(sentenceNum, data) {
-            const pageId = `page-eval${sentenceNum}`;
             const page = document.createElement('div');
             page.className = 'page';
-            page.id = pageId;
-
-            let html = `
-                <h1>Evaluation - Sentence ${sentenceNum} of 12</h1>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${(8 + (sentenceNum * 7.5))}%"></div>
-                </div>
-
-                <div class="sentence-number">${data.key}</div>
-            `;
-
-            for (let step = 1; step <= 5; step++) {
-                html += createStepHTML(step, data.key);
-            }
-
-            html += `
-                <div class="button-group">
-                    <button class="btn-secondary" onclick="previousPage()">Back</button>
-                    <button class="btn-primary" onclick="nextPage()">Next</button>
-                </div>
-            `;
-
+            page.id = `page-eval${sentenceNum}`;
+            let html = `<h1>Evaluation - Sentence ${sentenceNum} of 12</h1><div class="progress-bar"><div class="progress-fill" style="width: ${(8 + (sentenceNum * 7.5))}%"></div></div><div class="sentence-number">${data.key}</div>`;
+            for (let s = 1; s <= 5; s++) html += createStepHTML(s, data.key);
+            html += `<div class="button-group"><button class="btn-secondary" onclick="previousPage()">Back</button><button class="btn-primary" onclick="nextPage()">Next</button></div>`;
             page.innerHTML = html;
             document.getElementById('evaluation-pages').appendChild(page);
             pages.push(`eval${sentenceNum}`);
         }
         
         function goToPage(pageNum) {
-            if (pageNum <= pages.length - 1) {
-                currentPage = pageNum;
-                showPage(currentPage);
-            }
+            if (pageNum >= 0 && pageNum < pages.length) showPage(pageNum);
         }
         
         function submitForm() {
-            // Get evaluator info from localStorage
-            const evaluatorName = document.getElementById('evaluator-name')?.value || formData.name || '';
-            const evaluatorEmail = document.getElementById('evaluator-email')?.value || formData.email || '';
-            const experience = document.getElementById('urdu-experience')?.value || formData.experience || '';
-
-            // Collect all responses from the form
-            const responses = {};
-            for (const item of evaluationData) {
-                const sentenceKey = item.key;
-                responses[sentenceKey] = {
-                    transcript: formData[`${sentenceKey}_transcript`] || '',
-                    step1_rating: formData[`${sentenceKey}_step1_rating`] || '',
-                    step2_rating: formData[`${sentenceKey}_step2_rating`] || '',
-                    step3_rating: formData[`${sentenceKey}_step3_rating`] || '',
-                    step4_rating: formData[`${sentenceKey}_step4_rating`] || '',
-                    step5_rating: formData[`${sentenceKey}_step5_rating`] || ''
-                };
-            }
-
-            // Prepare the submission data
-            const submissionData = {
-                evaluatorName: evaluatorName,
-                evaluatorEmail: evaluatorEmail,
-                experience: experience,
-                timestamp: new Date().toISOString(),
-                responses: responses
-            };
-
-            // Show loading message
+            const evaluatorName = document.getElementById('evaluator-name')?.value || '';
+            const evaluatorEmail = document.getElementById('evaluator-email')?.value || '';
+            const experience = document.getElementById('urdu-experience')?.value || '';
+            const submissionData = {evaluatorName, evaluatorEmail, experience, timestamp: new Date().toISOString(), responses: {}};
+            
             const submitBtn = event.target;
-            const originalText = submitBtn.textContent;
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
 
-            // Send to Google Apps Script
-            const SCRIPT_URL = 'https://formsubmit.co/json/urduinterspeechdemo@gmail.com';
-            fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: JSON.stringify(submissionData),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Clear localStorage after successful submission
-                    localStorage.removeItem('urdEvalFormData');
-                    localStorage.removeItem('urdEvalCurrentPage');
-
-                    // Go to success page
-                    currentPage = pages.length - 1;
-                    showPage(currentPage);
-                } else {
-                    alert('Error submitting form: ' + data.message);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = originalText;
-                }
-            })
-            .catch(error => {
-                alert('Error submitting form. Please try again.\n' + error.message);
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            });
+            fetch('https://formsubmit.co/json/urduinterspeechdemo@gmail.com', {method: 'POST', body: JSON.stringify(submissionData), headers: {'Content-Type': 'application/json'}})
+            .then(r => r.json()).then(d => {
+                if (d.status === 'success') {localStorage.clear(); currentPage = pages.length - 1; showPage(currentPage);}
+                else {alert('Error: ' + d.message); submitBtn.disabled = false; submitBtn.textContent = 'Submit Evaluation';}
+            }).catch(e => {alert('Error: ' + e.message); submitBtn.disabled = false; submitBtn.textContent = 'Submit Evaluation';});
         }
         
         window.addEventListener('DOMContentLoaded', () => {
-            // Generate training page content
-            const trainingHTML = ``;
-            for (let step = 1; step <= 5; step++) {
-                document.getElementById('training-content').innerHTML += createStepHTML(step, trainingData.key);
-            }
-            document.getElementById('training-content').innerHTML += `
-                <div class="button-group">
-                    <button class="btn-secondary" onclick="previousPage()">Back</button>
-                    <button class="btn-primary" onclick="nextPage()">Continue to Evaluation</button>
-                </div>
-            `;
-
-            // Set transcript for training
-            for (let step = 1; step <= 5; step++) {
-                const el = document.getElementById(`step${step}-transcript`);
-                if (el) el.textContent = trainingData.txt;
-            }
-
-            // Generate 12 evaluation pages
-            evaluationData.forEach((data, idx) => {
-                generateEvaluationPage(idx + 1, data);
-            });
-
-            // Set transcripts for all evaluation pages
-            evaluationData.forEach((data, idx) => {
-                const pageNum = idx + 1;
-                for (let step = 1; step <= 5; step++) {
-                    const el = document.querySelector(`#page-eval${pageNum} #step${step}-transcript`);
-                    if (el) el.textContent = data.txt;
-                }
-            });
-
-            // Add final submission page
+            for (let s = 1; s <= 5; s++) document.getElementById('training-content').innerHTML += createStepHTML(s, trainingData.key);
+            document.getElementById('training-content').innerHTML += `<div class="button-group"><button class="btn-secondary" onclick="previousPage()">Back</button><button class="btn-primary" onclick="nextPage()">Continue to Evaluation</button></div>`;
+            for (let s = 1; s <= 5; s++) {const el = document.getElementById(`step${s}-transcript`); if (el) el.textContent = trainingData.txt;}
+            evaluationData.forEach((d, i) => generateEvaluationPage(i + 1, d));
+            evaluationData.forEach((d, i) => {const p = i + 1; for (let s = 1; s <= 5; s++) {const el = document.querySelector(`#page-eval${p} #step${s}-transcript`); if (el) el.textContent = d.txt;}});
             pages.push('submit');
-
-            // Add final button to last evaluation page
             const lastEvalPage = document.querySelector('#page-eval12');
             const buttons = lastEvalPage.querySelector('.button-group');
-            buttons.innerHTML = `
-                <button class="btn-secondary" onclick="goToPage(${pages.length - 2})">Back</button>
-                <button class="btn-primary" onclick="submitForm()">Submit Evaluation</button>
-            `;
-
-            // Load saved data
+            buttons.innerHTML = `<button class="btn-secondary" onclick="goToPage(${pages.length - 2})">Back</button><button class="btn-primary" onclick="submitForm()">Submit Evaluation</button>`;
             loadFormData();
-
-            // Restore to last page viewed
             const savedPage = localStorage.getItem('urdEvalCurrentPage');
-            if (savedPage) {
-                showPage(parseInt(savedPage));
-            } else {
-                showPage(0);
-            }
+            showPage(savedPage ? parseInt(savedPage) : 0);
         });
     </script>
 </body>
